@@ -30,3 +30,25 @@ def format_tasks(data: dict, include_completed: bool = False) -> str:
         imp = f", importance: {importance}" if importance != "normal" else ""
         lines.append(f"- {t['title']} [{t['status']}{due}{imp}] (id: {t['id']})")
     return "\n".join(lines)
+
+
+def format_task_detail(task: dict) -> str:
+    lines = [f"# {task['title']}"]
+    lines.append(f"Status: {task['status']}")
+    lines.append(f"Importance: {task['importance']}")
+    if dt := task.get("dueDateTime"):
+        lines.append(f"Due: {dt['dateTime'][:10]}")
+    lines.append(f"Reminder: {'on' if task.get('isReminderOn') else 'off'}")
+    if cats := task.get("categories"):
+        lines.append(f"Categories: {', '.join(cats)}")
+    lines.append(f"Created: {task['createdDateTime']}")
+    lines.append(f"Modified: {task['lastModifiedDateTime']}")
+    if body := task.get("body", {}).get("content"):
+        lines.append(f"\n{body}")
+    checklist = task.get("_checklist_items", [])
+    if checklist:
+        lines.append("\nChecklist:")
+        for item in checklist:
+            check = "x" if item.get("isChecked") else " "
+            lines.append(f"  [{check}] {item['displayName']}")
+    return "\n".join(lines)

@@ -2,7 +2,7 @@
 
 import pytest
 
-from microsoft_to_do import format_task_lists, format_tasks
+from microsoft_to_do import format_task_lists, format_tasks, format_task_detail
 
 
 class TestFormatTaskLists:
@@ -94,3 +94,58 @@ class TestFormatTasks:
         ]}
         result = format_tasks(data)
         assert result == "No tasks found."
+
+
+class TestFormatTaskDetail:
+    def _make_detail(self, title="Buy groceries", body_content="", checklist=None):
+        return {
+            "id": "task1",
+            "title": title,
+            "status": "notStarted",
+            "importance": "high",
+            "isReminderOn": True,
+            "createdDateTime": "2026-01-15T10:00:00Z",
+            "lastModifiedDateTime": "2026-01-15T12:00:00Z",
+            "body": {"content": body_content, "contentType": "text"},
+            "dueDateTime": {"dateTime": "2026-02-20T00:00:00.0000000", "timeZone": "UTC"},
+            "categories": ["Important"],
+            "_checklist_items": checklist or [],
+        }
+
+    def test_basic_detail(self):
+        result = format_task_detail(self._make_detail())
+        assert "Buy groceries" in result
+        assert "high" in result
+        assert "2026-02-20" in result
+
+    def test_body_content_shown(self):
+        result = format_task_detail(self._make_detail(body_content="Remember organic milk"))
+        assert "Remember organic milk" in result
+
+    def test_categories_shown(self):
+        result = format_task_detail(self._make_detail())
+        assert "Important" in result
+
+    def test_checklist_items_shown(self):
+        checklist = [
+            {"displayName": "Milk", "isChecked": False},
+            {"displayName": "Eggs", "isChecked": True},
+        ]
+        result = format_task_detail(self._make_detail(checklist=checklist))
+        assert "[ ] Milk" in result
+        assert "[x] Eggs" in result
+
+    def test_empty_checklist(self):
+        result = format_task_detail(self._make_detail(checklist=[]))
+        assert "Checklist" not in result
+
+    def test_no_due_date(self):
+        detail = self._make_detail()
+        del detail["dueDateTime"]
+        result = format_task_detail(detail)
+        assert "Buy groceries" in result
+        assert "Due" not in result
+
+    def test_reminder_shown(self):
+        result = format_task_detail(self._make_detail())
+        assert "Reminder: on" in result
