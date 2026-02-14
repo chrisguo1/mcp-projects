@@ -6,5 +6,15 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "httpx>=0.28.1",
+    "markdownify>=1.2.2",
     "mcp[cli]>=1.26.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["servers"]
+pythonpath = ["servers/apple_notes", "servers/weather"]
