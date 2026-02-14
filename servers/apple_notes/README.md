@@ -24,6 +24,9 @@ Titles of locked notes are visible in `get_notes` listings (with a `(locked)` su
 **Orphaned and deleted notes.**
 Notes that lack valid folder metadata (e.g., recently-deleted notes) are silently skipped in listings rather than causing errors.
 
+**`asyncio.to_thread` for subprocess calls.**
+AppleScript runs via `subprocess.run`, which is blocking. The MCP server is async (FastMCP tools are `async def`), so calling `subprocess.run` directly would block the event loop while waiting for `osascript` to finish (up to 30 seconds). `asyncio.to_thread` runs the blocking call on a separate thread, keeping the event loop free to handle other requests.
+
 ## Requirements
 
 - macOS (uses `osascript`)
