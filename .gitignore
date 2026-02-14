@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# direnv
+.envrc
+
+# MCP token caches
+.mcp-microsoft-todo-cache.json
